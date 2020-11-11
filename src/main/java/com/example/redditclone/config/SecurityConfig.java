@@ -16,6 +16,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.header.writers.StaticHeadersWriter;
 
 @EnableWebSecurity
 @AllArgsConstructor
@@ -33,10 +34,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(HttpSecurity httpSecurity) throws Exception {
 
-        httpSecurity.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and().csrf().disable()
+        httpSecurity
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and().cors().and()
+                .csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/api/auth/**")
+                .permitAll()
+                .antMatchers(HttpMethod.GET,"/api/subreddit/")
                 .permitAll()
                 .antMatchers(HttpMethod.GET, "/api/posts/")
                 .permitAll()
@@ -52,6 +57,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest()
                 .authenticated();
         httpSecurity.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        httpSecurity.headers().addHeaderWriter(
+                new StaticHeadersWriter("Access-Control-Allow-Origin", "*"));
     }
 
     @Autowired

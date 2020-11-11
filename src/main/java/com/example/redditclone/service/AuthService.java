@@ -1,6 +1,5 @@
 package com.example.redditclone.service;
 
-import com.example.redditclone.model.VerificationToken;
 import com.example.redditclone.dto.AuthenticationResponse;
 import com.example.redditclone.dto.LoginRequest;
 import com.example.redditclone.dto.RefreshTokenRequest;
@@ -8,10 +7,12 @@ import com.example.redditclone.dto.RegisterRequest;
 import com.example.redditclone.exception.SpringRedditException;
 import com.example.redditclone.model.NotificationEmail;
 import com.example.redditclone.model.User;
+import com.example.redditclone.model.VerificationToken;
 import com.example.redditclone.repository.UserRepository;
 import com.example.redditclone.repository.VerificationTokenRepository;
 import com.example.redditclone.security.JwtProvider;
 import lombok.AllArgsConstructor;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -107,5 +108,9 @@ public class AuthService {
                 .expiresAt(Instant.now().plusMillis(jwtProvider.getJwtExpirationInMillis()))
                 .username(refreshTokenRequest.getUsername())
                 .build();
+    }
+    public boolean isLoggedIn() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return !(authentication instanceof AnonymousAuthenticationToken) && authentication.isAuthenticated();
     }
 }
